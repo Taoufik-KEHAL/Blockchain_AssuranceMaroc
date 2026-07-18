@@ -1,2 +1,5 @@
 *.pyc
 **/*.pyc
+.venv/
+.env
+secrets/

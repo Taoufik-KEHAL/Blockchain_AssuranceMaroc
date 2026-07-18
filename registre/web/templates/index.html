@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registre Blockchain Inter-Assurances</title>
+<style>
+    :root {
+        --navy: #16324f;
+        --navy-dark: #0f2438;
+        --gold: #c9982e;
+        --rose-bg: #fbe4e1;
+        --rose-border: #9a3b32;
+        --green-bg: #e3f3e7;
+        --green-border: #2f7a4d;
+        --border: #dde3e8;
+        --muted: #66717c;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+        background: #f4f6f8;
+        color: #1c2733;
+    }
+    header.topbar {
+        background: var(--navy);
+        border-bottom: 4px solid var(--gold);
+        padding: 1.4rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    header.topbar h1 {
+        font-family: Georgia, "Times New Roman", serif;
+        color: #fff;
+        margin: 0;
+        font-size: 1.6rem;
+    }
+    header.topbar .sous-titre {
+        color: #b9c6d4;
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-top: 0.25rem;
+    }
+    .noeud-badge {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.35);
+        color: #e8edf2;
+        border-radius: 999px;
+        padding: 0.4rem 0.9rem;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+    main {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 1.5rem;
+    }
+    .alert {
+        border-radius: 6px;
+        padding: 0.9rem 1.1rem;
+        margin-bottom: 1.25rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    .alert.error {
+        background: var(--rose-bg);
+        border-left: 4px solid var(--rose-border);
+        color: var(--rose-border);
+    }
+    .alert.success {
+        background: var(--green-bg);
+        border-left: 4px solid var(--green-border);
+        color: var(--green-border);
+    }
+    .panel {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .panel h2 {
+        color: var(--navy);
+        margin: 0 0 0.4rem;
+        font-size: 1.2rem;
+    }
+    .panel > p.desc {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin-top: 0;
+        margin-bottom: 1.25rem;
+    }
+    label {
+        display: block;
+        font-size: 0.78rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin: 0.9rem 0 0.3rem;
+    }
+    input[type=text], input[type=date] {
+        width: 100%;
+        padding: 0.6rem 0.7rem;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        font-size: 0.95rem;
+        font-family: "SFMono-Regular", Consolas, monospace;
+    }
+    button, .btn {
+        border: none;
+        border-radius: 5px;
+        font-size: 0.95rem;
+        padding: 0.7rem 1rem;
+        cursor: pointer;
+    }
+    .btn-primary {
+        width: 100%;
+        background: var(--navy);
+        color: #fff;
+        margin-top: 1.1rem;
+    }
+    .btn-primary:hover { background: var(--navy-dark); }
+    .btn-row {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+    }
+    .btn-secondary {
+        flex: 1;
+        background: #fff;
+        color: var(--navy);
+        border: 1px solid var(--navy);
+    }
+    .btn-secondary:hover { background: #eef2f6; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th {
+        text-align: left;
+        font-size: 0.72rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+        padding: 0.5rem 0.4rem;
+    }
+    td {
+        border-bottom: 1px solid var(--border);
+        padding: 0.6rem 0.4rem;
+        vertical-align: middle;
+    }
+    .hash-tronque { font-family: Consolas, monospace; }
+    .badge-organisme {
+        display: inline-block;
+        background: #f0dfa5;
+        color: #6b4f10;
+        border-radius: 999px;
+        padding: 0.15rem 0.7rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .vide { color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+    <div>
+        <h1>Registre Blockchain Inter-Assurances</h1>
+        <div class="sous-titre">Détection de la double indemnisation par registre distribué</div>
+    </div>
+    <span class="noeud-badge">Nœud connecté : {{ node_address }}</span>
+</header>
+
+<main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="panel">
+        <h2>Déclarer un sinistre</h2>
+
+        <form method="POST" action="{{ url_for('declarer_sinistre') }}">
+            <label for="identifiant_assure">Identifiant de l'assuré</label>
+            <input type="text" id="identifiant_assure" name="identifiant_assure" placeholder="ex. CN123456789" required>
+
+            <label for="code_acte">Code de l'acte médical</label>
+            <input type="text" id="code_acte" name="code_acte" placeholder="ex. CONSULT_GEN" required>
+
+            <label for="date_acte">Date de l'acte</label>
+            <input type="date" id="date_acte" name="date_acte" required>
+
+            <button type="submit" class="btn-primary">Vérifier et enregistrer</button>
+        </form>
+
+        <div class="btn-row" style="margin-top:0.75rem;">
+            <a href="{{ url_for('sceller') }}" class="btn btn-secondary" style="text-align:center;text-decoration:none;">Sceller maintenant</a>
+            <a href="{{ url_for('resync') }}" class="btn btn-secondary" style="text-align:center;text-decoration:none;">Resynchroniser</a>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Journal d'audit du registre</h2>
+
+        {% if journal %}
+        <table>
+            <tr><th>Empreinte</th><th>Organisme émetteur</th><th>Bloc</th><th>Horodatage</th></tr>
+            {% for entry in journal %}
+            <tr>
+                <td class="hash-tronque">{{ entry.hash_sinistre[:16] }}…</td>
+                <td><span class="badge-organisme">{{ entry.organisme_emetteur }}</span></td>
+                <td>#{{ entry.bloc }}</td>
+                <td>{{ entry.horodatage }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p class="vide">Aucun sinistre scellé pour l'instant sur ce nœud.</p>
+        {% endif %}
+    </div>
+</main>
+
+</body>
+</html>

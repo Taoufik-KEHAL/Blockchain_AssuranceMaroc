@@ -1,0 +1,9 @@
+[project]
+name = "blockchain-inter-assurances"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "cryptography>=42.0.0",
+    "flask>=3.1.3",
+    "requests>=2.34.2",
+]
