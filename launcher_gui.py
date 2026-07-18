@@ -288,14 +288,55 @@ class LauncherApp(tk.Tk):
         return sortie or f"(aucune sortie, code retour {result.returncode})"
 
     def generer_cle_acaps(self):
+        confirme = messagebox.askyesno(
+            "Générer la clé ACAPS ?",
+            "Cette action génère la paire de clés racine de l'ACAPS (l'autorité "
+            "de certification du réseau) :\n\n"
+            "• Clé privée -> secrets/ACAPS.pem (ne quitte jamais cette machine)\n"
+            "• Clé publique -> cles_publiques/ACAPS.pem (à distribuer hors ligne "
+            "à chaque organisme)\n\n"
+            "Cette clé sert de racine de confiance pour tout le réseau : elle "
+            "signera les certificats de CNOPS, CNSS et ASSUREUR_PRIVE (étape 3).\n\n"
+            "À exécuter UNE SEULE FOIS, uniquement sur la machine de l'ACAPS. "
+            "Si une clé ACAPS existe déjà, elle ne sera pas régénérée.",
+        )
+        if not confirme:
+            return
         sortie = self._executer_script_gouvernance("scripts.generer_autorite_acaps")
         messagebox.showinfo("1. Générer clé ACAPS", sortie)
 
     def generer_cles_organismes(self):
+        confirme = messagebox.askyesno(
+            "Générer les clés des organismes ?",
+            "Cette action génère une paire de clés pour chacun des 3 "
+            "organismes (CNOPS, CNSS, ASSUREUR_PRIVE) :\n\n"
+            "• Clé privée -> secrets/<organisme>.pem (reste sur cette machine)\n"
+            "• Clé publique -> cles_publiques/<organisme>.pem (à transmettre "
+            "à l'ACAPS pour certification, étape 3)\n\n"
+            "Ces clés servent à identifier et signer les transactions de "
+            "chaque organisme sur le réseau.\n\n"
+            "À exécuter une seule fois par organisme. Si une clé existe déjà "
+            "pour un organisme, elle ne sera pas régénérée.",
+        )
+        if not confirme:
+            return
         sorties = [self._executer_script_gouvernance("scripts.generer_cles_noeud", c["id"]) for c in ORGANISMES]
         messagebox.showinfo("2. Générer clés des organismes", "\n".join(sorties))
 
     def certifier_organismes(self):
+        confirme = messagebox.askyesno(
+            "Certifier les organismes ?",
+            "Cette action fait signer par l'ACAPS la clé publique de chaque "
+            "organisme (CNOPS, CNSS, ASSUREUR_PRIVE), produisant un "
+            "certificat : cles_publiques/<organisme>.cert.\n\n"
+            "Chaque nœud du réseau vérifiera ce certificat avec la clé "
+            "publique racine de l'ACAPS avant d'accepter l'identité de "
+            "l'organisme correspondant.\n\n"
+            "Nécessite que la clé ACAPS (étape 1) et les clés des organismes "
+            "(étape 2) aient déjà été générées.",
+        )
+        if not confirme:
+            return
         sorties = [self._executer_script_gouvernance("scripts.certifier_cle_organisme", c["id"]) for c in ORGANISMES]
         messagebox.showinfo("3. Certifier les organismes", "\n".join(sorties))
 
