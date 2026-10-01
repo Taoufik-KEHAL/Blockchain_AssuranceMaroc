@@ -6,6 +6,7 @@ indemnisation d'un même acte médical, sans qu'aucun organisme ne partage ses
 données internes avec un concurrent. Basé sur le tutoriel "Develop a
 blockchain application from scratch in Python" (satwikkansal), branche
 `ibm_blockchain_post`.
+Ce projet académique vise l'implementation de la technologie Blockchain dans un cas métier, il s'agit POC du ROI de la technologie. 
 
 ## Installation
 
